@@ -1,10 +1,13 @@
 package com.company;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Board{
     private Square[][] board;
-    private Square[] attackedSquares;
+    ArrayList<Square> attackedSquares = new ArrayList<>();
+    ArrayList<Piece> whitePieces = new ArrayList<Piece>();
+    ArrayList<Piece> blackPieces = new ArrayList<Piece>();
     Board(){
         newBoard(new Color(47, 152, 136, 255),new Color(238, 238, 210));
 
@@ -46,6 +49,24 @@ public class Board{
 
         }
     }
+    public void colorAttackedSquares(Color color) {
+        for (int i = 0; i < attackedSquares.size(); i++) {
+            attackedSquares.get(i).setBackground(color);
+        }
+    }
+    public void updateAttack(ArrayList<Piece> pieces) {
+        attackedSquares = new ArrayList<>();
+        for (int i = 0; i < pieces.size(); i++) {
+            if(pieces.get(i).getName().equals("pawn")){
+                attackedSquares.addAll(pieces.get(i).attackMoves);
+
+            } else {
+                attackedSquares.addAll(pieces.get(i).moves);
+
+            }
+
+        }
+    }
 
     public void boardSetDefault(){
         for (int i = 0; i < board.length; i++) {
@@ -54,17 +75,22 @@ public class Board{
             }
         }
     }
+
     public void updateBoard(){
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
                 board[j][i].setAttacked(false);
             }
         }
+        for (int i = 0; i < attackedSquares.size(); i++) {
+            attackedSquares.get(i).setAttacked(true);
+        }
     }
 
     public Square getSquare(int x , int y){
         return board[x][y];
     }
+
     public int getLength(){
         return board.length;
     }

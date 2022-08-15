@@ -44,6 +44,7 @@ public class MyFrame extends JFrame{
         this.addKeyListener(player);
         chess.setPieces();
 
+
     }
 
 

@@ -12,7 +12,7 @@ public class Square extends JPanel {
     private boolean player = false;
     boolean attacked = false;
     public void setAttacked(boolean bool){
-        attacked = bool;
+        this.attacked = bool;
     }
     public void setCoordinates(int x, int y) {
 

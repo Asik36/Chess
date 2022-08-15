@@ -14,6 +14,8 @@ public class Piece {
     private boolean firstMove = true;
     public boolean enPassant;
     private Square point;
+    private Piece tmpPiece;
+    private Point point0;
     Board board;
     ArrayList<Square> moves = new ArrayList<>();
     ArrayList<Square> attackMoves = new ArrayList<>();
@@ -27,6 +29,22 @@ public class Piece {
         this.y = y;
 
         //image chooser
+        setImageIcon(name, team);
+        // add into team
+        if(team){
+            board.whitePieces.add(this);
+        } else {
+            board.blackPieces.add(this);
+
+        }
+
+
+
+
+
+    }
+
+    private void setImageIcon(String name, Boolean team) {
         ImageIcon img = null;
         switch (name) {
             case "pawn":
@@ -73,14 +91,6 @@ public class Piece {
                 }
                 break;
         }
-        // add into team
-        if(team){
-            MyFrame.chess.whitePieces.add(this);
-        } else {
-            MyFrame.chess.blackPieces.add(this);
-
-        }
-
         //resize image
         img = this.imageResize(img, board.getSquare(x, y).getWidth(), board.getSquare(x, y).getHeight());
         this.label = new JLabel(img);
@@ -89,9 +99,6 @@ public class Piece {
         board.getSquare(x, y).add(label);
         board.getSquare(x, y).updateUI();
         board.getSquare(x, y).setPiece(this);
-
-
-
     }
 
     public Square getSquare(){
@@ -119,6 +126,11 @@ public class Piece {
                 kingMoveSet();
                 break;
         }
+        /*if(getName() != "pawn"){
+            for (int i = 0; i < moves.size(); i++) {
+                moves.get(i).setAttacked(true);
+            }
+        }*/
     }
 
 
@@ -130,32 +142,34 @@ public class Piece {
         }
     }
 
-    public boolean theoreticalMove(Square newPos, Piece king){
-        Board copyBoard = board;
-        newPos = copyBoard.getSquare(newPos.getCoordinatesX(),newPos.getCoordinatesY());
+
+    public void move(Square newPos) {
+
         Square playedPoint = newPos;
 
         // I hate en passant...
         if (getName() == "pawn") {
+            if (point != null) {
+                if (playedPoint.getCoordinatesX() == point.getCoordinatesX() || playedPoint.getCoordinatesY() == point.getCoordinatesY()) {
+                    if (team) {
+                        board.getSquare(newPos.getCoordinatesX(), newPos.getCoordinatesY() + 1).getPiece().delete();
+                    } else {
+                        board.getSquare(newPos.getCoordinatesX(), newPos.getCoordinatesY() - 1).getPiece().delete();
+                    }
+
+                }
+            }
             if ((playedPoint.getCoordinatesX() == x && playedPoint.getCoordinatesY() == y + 2) || (playedPoint.getCoordinatesX() == x && playedPoint.getCoordinatesY() == y - 2)) {
                 enPassant = true;
             }
         }
-        if (getName() == "king") {
-            if (playedPoint.getCoordinatesX() == x - 2) {
-                copyBoard.getSquare(0, playedPoint.getCoordinatesY()).getPiece().move(copyBoard.getSquare(2, playedPoint.getCoordinatesY()));
-            }
-        }
-        if (point != null) {
-            if (playedPoint.getCoordinatesX() == point.getCoordinatesX() || playedPoint.getCoordinatesY() == point.getCoordinatesY()) {
-                if (team) {
-                    copyBoard.getSquare(newPos.getCoordinatesX(), newPos.getCoordinatesY() + 1).getPiece().delete();
-                } else {
-                    copyBoard.getSquare(newPos.getCoordinatesX(), newPos.getCoordinatesY() - 1).getPiece().delete();
-                }
 
+        if (getName() == "king") {
+                if (playedPoint.getCoordinatesX() == x - 2) {
+                    board.getSquare(0, playedPoint.getCoordinatesY()).getPiece().move(board.getSquare(2, playedPoint.getCoordinatesY()));
+                }
             }
-        }
+
 
 
         if (firstMove) {
@@ -165,62 +179,67 @@ public class Piece {
         if (newPos.getPiece() != null) {
             newPos.getPiece().delete();
         }
+        newPos.add(label);
         newPos.updateUI();
         newPos.setPiece(this);
         this.x = newPos.getCoordinatesX();
         this.y = newPos.getCoordinatesY();
-        if(!copyBoard.getSquare(king.x, king.y).attacked){
-            return true;
-        }
-        else return false;
-    }
-    public boolean move(Square newPos) {
 
-        Square playedPoint = newPos;
 
-        // I hate en passant...
-        if (getName() == "pawn") {
-            if ((playedPoint.getCoordinatesX() == x && playedPoint.getCoordinatesY() == y + 2) || (playedPoint.getCoordinatesX() == x && playedPoint.getCoordinatesY() == y - 2)) {
-                enPassant = true;
-            }
-        }
-            if (getName() == "king") {
-                if (playedPoint.getCoordinatesX() == x - 2) {
-                    System.out.println("ok");
-                    board.getSquare(0, playedPoint.getCoordinatesY()).getPiece().move(board.getSquare(2, playedPoint.getCoordinatesY()));
+        if(name == "pawn"){
+            if(team){
+                if(y == 0){
+                    remove();
+                    this.name = "queen";
+                    setImageIcon(name,team);
                 }
             }
-            if (point != null) {
-                if (playedPoint.getCoordinatesX() == point.getCoordinatesX() || playedPoint.getCoordinatesY() == point.getCoordinatesY()) {
-                    System.out.println("en ");
-                    if (team) {
-                        board.getSquare(newPos.getCoordinatesX(), newPos.getCoordinatesY() + 1).getPiece().delete();
-                    } else {
-                        board.getSquare(newPos.getCoordinatesX(), newPos.getCoordinatesY() - 1).getPiece().delete();
-                    }
-
+            else{
+                if(y == 7){
+                    remove();
+                    this.name = "queen";
+                    setImageIcon(name,team);
                 }
             }
-
-
-            if (firstMove) {
-                firstMove = false;
-            }
-            remove();
-            if (newPos.getPiece() != null) {
-                newPos.getPiece().delete();
-            }
-            newPos.add(label);
-            newPos.updateUI();
-            newPos.setPiece(this);
-            this.x = newPos.getCoordinatesX();
-            this.y = newPos.getCoordinatesY();
-            return true;
-
+        }
     }
 
+    public void invisibleMove(Square newPos){
+        tmpPiece = newPos.getPiece(); // save Square contain
+        if (tmpPiece != null){
+            if(tmpPiece.getTeam()){
+                board.whitePieces.remove(tmpPiece);
+            } else{
+                board.blackPieces.remove(tmpPiece);
+            }
+        }
+
+        newPos.setPiece(this); // put this Piece
+        this.getSquare().setPiece(null);
+
+        point0 = new Point(x,y);
+
+        this.x = newPos.getCoordinatesX();
+        this.y = newPos.getCoordinatesY();
+
+    }
+    public void invisibleMoveBack(){
+        this.getSquare().setPiece(tmpPiece);
+        if (tmpPiece != null){
+            if(tmpPiece.getTeam()){
+                board.whitePieces.add(tmpPiece);
+            } else{
+                board.blackPieces.add(tmpPiece);
+            }
+        }
+
+        board.getSquare(point0.x,point0.y).setPiece(this);
+        x = point0.x;
+        y = point0.y;
 
 
+
+    }
 
 
 
@@ -233,9 +252,9 @@ public class Piece {
     }
     public void delete() {
         if(getTeam()){
-            MyFrame.chess.whitePieces.remove(this);
+            board.whitePieces.remove(this);
         } else {
-            MyFrame.chess.blackPieces.remove(this);
+            board.blackPieces.remove(this);
 
         }
         board.getSquare(x , y).removeAll();
@@ -260,18 +279,19 @@ public class Piece {
         }
         //white
         if (this.team) {
-
             if (board.getSquare(x, y - 1).getPiece() == null) {
                 // One forward
                 moves.add(board.getSquare(x, y - 1));
-                if (board.getSquare(x, y - 2).getPiece() == null && firstMove){
-                    // Two forward
-                    moves.add(board.getSquare(x, y - 2));
+                if(y == 6) {
+                    if (board.getSquare(x, y - 2).getPiece() == null) {
+                        // Two forward
+                        moves.add(board.getSquare(x, y - 2));
 
 
-
+                    }
                 }
             }
+
             if (x + 1 < board.getLength()) {
                 attackMoves.add(board.getSquare(x + 1, y - 1));
                 if (board.getSquare(x + 1, y - 1).getPiece() != null) {
@@ -319,15 +339,18 @@ public class Piece {
 
         } else {
 
-                if (board.getSquare(x, y + 1).getPiece() == null) {
-                    // One forward
-                    moves.add(board.getSquare(x, y + 1));
-                    if (board.getSquare(x, y + 2).getPiece() == null && firstMove) {
-                        // Two forward
-                        moves.add(board.getSquare(x, y + 2));
+            if (board.getSquare(x, y + 1).getPiece() == null) {
+                // One forward
+                moves.add(board.getSquare(x, y + 1));
+                if (y == 1){
+
+            if (board.getSquare(x, y + 2).getPiece() == null) {
+                // Two forward
+                moves.add(board.getSquare(x, y + 2));
 
 
-                    }
+            }
+        }
                 }
                 if (x + 1 < board.getLength()) {
                     attackMoves.add(board.getSquare(x + 1, y + 1));
@@ -545,7 +568,6 @@ public class Piece {
             moves.add(board.getSquare(this.x, i));
         }
 
-
     }
 
 
@@ -563,7 +585,7 @@ public class Piece {
 
         for (int i = 0; i < arr.length; i++) {
             if (arr[i].x >= 0 && arr[i].x < board.getLength() && arr[i].y >= 0 && arr[i].y < board.getLength()) {
-                if (!MyFrame.chess.attackedSquares.contains(board.getSquare(arr[i].x, arr[i].y))) {
+
 
                     if (arr[i].x < board.getLength() && arr[i].x >= 0 &&
                             arr[i].y < board.getLength() && arr[i].y >= 0) {
@@ -575,7 +597,7 @@ public class Piece {
                         moves.add(board.getSquare(arr[i].x, arr[i].y));
                     }
 
-                }
+
             }
         }
         // Castle
@@ -583,9 +605,8 @@ public class Piece {
             if(firstMove)
             if(board.getSquare(0,7).getPiece() != null){
                 if(board.getSquare(0,7).getPiece().getName() == "rock"){
-                    if(board.getSquare(1,7).getPiece() == null && !board.getSquare(1,7).attacked &&
-                            board.getSquare(2,7).getPiece() == null && !board.getSquare(2,7).attacked &&
-                            !board.getSquare(3,7).attacked)
+                    if(board.getSquare(1,7).getPiece() == null &&
+                            board.getSquare(2,7).getPiece() == null)
                     if(firstMove && board.getSquare(0,7).getPiece().firstMove){
                         moves.add(board.getSquare(1, 7));
                     }
@@ -593,9 +614,8 @@ public class Piece {
             }
             if(board.getSquare(7,7).getPiece() != null){
                 if(board.getSquare(7,7).getPiece().getName() == "rock"){
-                    if(board.getSquare(5,7).getPiece() == null && !board.getSquare(5,7).attacked &&
-                            board.getSquare(4,7).getPiece() == null && !board.getSquare(4,7).attacked &&
-                            !board.getSquare(3,7).attacked)
+                    if(board.getSquare(5,7).getPiece() == null &&
+                            board.getSquare(4,7).getPiece() == null)
                     if(firstMove && board.getSquare(7,7).getPiece().firstMove){
                         moves.add(board.getSquare(5, 7));
                     }
@@ -603,14 +623,14 @@ public class Piece {
             }
         } else{
             if(firstMove)
-                if(board.getSquare(0,0).getPiece() != null){
+                if(board.getSquare(0,0).getPiece() != null && this.x == 4 && this.y == 1){
                     if(board.getSquare(0,0).getPiece().getName() == "rock"){
                         if(firstMove && board.getSquare(0,0).getPiece().firstMove){
                             moves.add(board.getSquare(1, 0));
                         }
                     }
                 }
-            if(board.getSquare(7,7).getPiece() != null){
+            if(board.getSquare(7,7).getPiece() == null && this.x == 4 && this.y == 7){
                 if(board.getSquare(7,7).getPiece().getName() == "rock"){
                     if(firstMove && board.getSquare(7,0).getPiece().firstMove){
                         moves.add(board.getSquare(5, 0));
@@ -630,6 +650,11 @@ public class Piece {
 
     }
 
+    public void colorMoves(Color color){
+        for (int i = 0; i < moves.size(); i++) {
+            moves.get(i).setBackground(color);
+        }
+    }
 
     public boolean checkMoves(Square newSquare){
         for (int i = 0; i < moves.size(); i++) {
@@ -639,7 +664,7 @@ public class Piece {
         }
         return false;
     }
-    public ArrayList getMoves(){
+    public ArrayList<Square> getMoves(){
         return moves;
     }
 }
