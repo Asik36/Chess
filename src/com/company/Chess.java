@@ -197,12 +197,12 @@ public class Chess implements MouseListener{
 
 
     public void setPieces(){
-/*
+
          for (int i = 0; i < 8; i++) {
             new Piece("pawn", true, i, 6);
             new Piece("pawn", false, i, 1);
         }
-*/
+
 
 
         new Piece("rock", true, 0, 7);
@@ -210,7 +210,7 @@ public class Chess implements MouseListener{
         new Piece("rock", false, 7, 0);
         new Piece("rock", true, 7, 7);
 
-       /* new Piece("knight", true, 1, 7);
+        new Piece("knight", true, 1, 7);
         new Piece("knight", true, 6, 7);
         new Piece("knight", false, 1, 0);
         new Piece("knight", false, 6, 0);
@@ -221,7 +221,7 @@ public class Chess implements MouseListener{
         new Piece("bishop", false, 5, 0);
 
         new Piece("queen", true, 4, 7);
-        new Piece("queen", false, 4, 0);*/
+        new Piece("queen", false, 4, 0);
 
         blackKing = new Piece("king", false, 3, 0);
         whiteKing = new Piece("king", true, 3, 7);
